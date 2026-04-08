@@ -1,26 +1,10 @@
 import streamlit as st
-import requests
 import base64
-import threading
-from fastapi import FastAPI
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
 from gtts import gTTS
 import io
-import uvicorn
+from pydantic import BaseModel
 
-# --------------- Backend (FastAPI) -------------------
-
-app = FastAPI(title="Sahayak AI Backend")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# ------------------ Backend logic ------------------
 class RequestData(BaseModel):
     choice: str
     language: str
@@ -50,13 +34,13 @@ def get_plan(choice, lang):
     return "", "", ""
 
 def speak(text, lang):
+    """Convert text to audio and return base64"""
     tts = gTTS(text=text, lang=lang)
     audio_bytes = io.BytesIO()
     tts.write_to_fp(audio_bytes)
     audio_bytes.seek(0)
     return base64.b64encode(audio_bytes.read()).decode()
 
-@app.post("/recommend")
 def recommend(data: RequestData):
     crops, income, value = get_plan(data.choice, data.language)
     audio = speak(f"{crops}. {income}. {value}", data.language)
@@ -67,23 +51,29 @@ def recommend(data: RequestData):
         "audio": audio
     }
 
-# Run FastAPI in a separate thread inside Streamlit app
-def run_api():
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="error")
+def speak_instruction(text, lang):
+    """Play instruction audio in Streamlit"""
+    audio_bytes = base64.b64decode(speak(text, lang))
+    st.audio(audio_bytes, format="audio/mp3")
 
-api_thread = threading.Thread(target=run_api, daemon=True)
-api_thread.start()
-
-# --------------- Frontend (Streamlit) -------------------
-
+# ------------------ Frontend (Streamlit) ------------------
 st.set_page_config(page_title="🌾 Sahayak AI", layout="wide")
 
 st.title("🌾 Sahayak AI - Climate Resilient Livelihood Planner")
 st.subheader("Krishi Mitra – Assistant")
 
+# --- Language Selection ---
 lang_option = st.selectbox("Select Language / भाषा / ಭಾಷೆ", ["English", "Hindi", "Kannada"])
 lang_map = {"English": "en", "Hindi": "hi", "Kannada": "kn"}
 language = lang_map[lang_option]
+
+# Play instruction
+if st.button("🔊 Play Instructions"):
+    speak_instruction({
+        "en": "Select your farm type below. Then click on the recommended crop to hear advice.",
+        "hi": "नीचे अपने फार्म का प्रकार चुनें। फिर सलाह सुनने के लिए अनुशंसित फसल पर क्लिक करें।",
+        "kn": "ಕೆಳಗಿನ ನಿಮ್ಮ ಫಾರ್ಮ್ ಪ್ರಕಾರವನ್ನು ಆರಿಸಿ. ನಂತರ ಸಲಹೆಯನ್ನು ಕೇಳಲು ಶಿಫಾರಸು ಮಾಡಿದ ಬೆಳೆಯನ್ನು ಕ್ಲಿಕ್ ಮಾಡಿ."
+    }[language], language)
 
 st.markdown("### Select Farm Type")
 
@@ -91,33 +81,36 @@ col1, col2, col3 = st.columns(3)
 
 choice = None
 with col1:
-    if st.button("🏜️ Dry Land"):
+    if st.button("🏜️ Dry Land", key="dry"):
         choice = "dry"
 with col2:
-    if st.button("🐄 Dairy"):
+    if st.button("🐄 Dairy", key="dairy"):
         choice = "dairy"
 with col3:
-    if st.button("🐟 Fish"):
+    if st.button("🐟 Fish", key="fish"):
         choice = "fish"
 
 if choice:
     try:
-        response = requests.post(
-            "http://localhost:8000/recommend",
-            json={"choice": choice, "language": language},
-            timeout=10
-        )
-        response.raise_for_status()
-        data = response.json()
+        data = recommend(RequestData(choice=choice, language=language))
 
         st.success("✅ Recommendation Ready")
 
-        st.write(f"### 🌱 Crops: {data['crops']}")
-        st.write(f"### 💰 Income: {data['income']}")
-        st.write(f"### 🔄 Value Addition: {data['value_addition']}")
+        # Show results with big font for readability
+        st.markdown(f"### 🌱 Crops: {data['crops']}")
+        st.markdown(f"### 💰 Income: {data['income']}")
+        st.markdown(f"### 🔄 Value Addition: {data['value_addition']}")
 
-        audio_bytes = base64.b64decode(data["audio"])
-        st.audio(audio_bytes, format="audio/mp3")
+        # Play recommendation audio
+        st.audio(base64.b64decode(data["audio"]), format="audio/mp3")
+
+        # Optional: repeat instruction button
+        if st.button("🔊 Play Advice Again"):
+            st.audio(base64.b64decode(data["audio"]), format="audio/mp3")
 
     except Exception as e:
         st.error(f"⚠️ Failed to get recommendation: {e}")
+
+# Footer
+st.markdown("---")
+st.markdown("🌾 Sahayak AI helps farmers get drought-resilient crops and secondary income options in multiple languages.")
