@@ -1,57 +1,65 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
-from gtts import gTTS
-import io
+import streamlit as st
+import requests
 import base64
-import uvicorn
 
-app = FastAPI(title="Sahayak AI Backend")
+# Page Config for a "Real App" feel
+st.set_page_config(page_title="Sahayak AI", page_icon="🌾", layout="centered")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Custom CSS for better UI
+st.markdown("""
+    <style>
+    .main { background-color: #f5f7f9; }
+    .stButton>button { width: 100%; border-radius: 10px; height: 3em; background-color: #2e7d32; color: white; }
+    .card { padding: 20px; border-radius: 15px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    </style>
+    """, unsafe_allow_html=True)
 
-class RequestData(BaseModel):
-    choice: str
-    language: str
+st.title("🌾 Sahayak AI")
+st.markdown("---")
 
-def get_plan(choice, lang):
-    plans = {
-        "kn": {
-            "dry": ("ರಾಗಿ, ಜೋಳ, ಜೋವಾರ", "ಆಡು, ಕೋಳಿ", "ತುಪ್ಪ, ಎಣ್ಣೆ"),
-            "dairy": ("ಚಾರೆ ಬೆಳೆಗಳು", "ಹಾಲು, ಪನ್ನೀರ್", "ತುಪ್ಪ, ಬೆಣ್ಣೆ"),
-            "fish": ("ನೀರಿನ ಸಸ್ಯಗಳು", "ಮೀನುಗಾರಿಕೆ", "ಮೀನು ಉತ್ಪನ್ನಗಳು")
-        },
-        "hi": {
-            "dry": ("रागी, ज्वार, बाजरा", "बकरी, मुर्गी", "घी, तेल"),
-            "dairy": ("चारे की फसलें", "दूध, पनीर", "घी, मक्खन"),
-            "fish": ("जल पौधे", "मछली पालन", "मछली उत्पाद")
-        },
-        "en": {
-            "dry": ("Ragi, Jowar, Bajra", "Goat, Poultry", "Ghee, Oil"),
-            "dairy": ("Fodder Crops", "Milk, Paneer", "Ghee, Butter"),
-            "fish": ("Water Plants", "Fish Farming", "Fish Products")
-        }
-    }
-    return plans.get(lang, plans["en"]).get(choice, ("", "", ""))
+# Sidebar for Settings
+with st.sidebar:
+    st.header("⚙️ Settings")
+    lang_choice = st.selectbox("Select Language / ಭಾಷೆ / भाषा", 
+                             options=["en", "kn", "hi"], 
+                             format_func=lambda x: {"en":"English", "kn":"ಕನ್ನಡ", "hi":"हिन्दी"}[x])
+    st.session_state.language = lang_choice
+    st.info("Sahayak AI helps farmers choose the best crops and livestock based on land type.")
 
-def speak(text, lang):
-    tts = gTTS(text=text, lang=lang)
-    audio_bytes = io.BytesIO()
-    tts.write_to_fp(audio_bytes)
-    audio_bytes.seek(0)
-    return base64.b64encode(audio_bytes.read()).decode()
+# Main Interface
+st.subheader("What type of farm are you planning?")
+col1, col2, col3 = st.columns(3)
 
-@app.post("/recommend")
-def recommend(data: RequestData):
-    crops, income, value = get_plan(data.choice, data.language)
-    audio = speak(f"{crops}. {income}. {value}", data.language)
-    return {"crops": crops, "income": income, "value_addition": value, "audio": audio}
+choice = None
+with col1:
+    if st.button("🏜️ Dry Land"): choice = "dry"
+with col2:
+    if st.button("🐄 Dairy"): choice = "dairy"
+with col3:
+    if st.button("🐟 Fish Farm"): choice = "fish"
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Execution Logic
+if choice:
+    with st.spinner('Generating your plan...'):
+        try:
+            res = requests.post("http://localhost:8000/recommend", 
+                               json={"choice": choice, "language": st.session_state.language})
+            data = res.json()
+
+            # Results Display in "Card" Style
+            st.markdown(f"""
+            <div class="card">
+                <h3>📋 Your Farming Plan</h3>
+                <p><b>🌱 Recommended Crops:</b> {data['crops']}</p>
+                <p><b>💰 Income Source:</b> {data['income']}</p>
+                <p><b>🔄 Value Addition:</b> {data['value_addition']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Audio Player
+            st.write("🔊 **Listen to Recommendation:**")
+            audio_bytes = base64.b64decode(data["audio"])
+            st.audio(audio_bytes, format="audio/mp3")
+            
+        except:
+            st.error("Could not connect to Backend. Please ensure backend.py is running.")
