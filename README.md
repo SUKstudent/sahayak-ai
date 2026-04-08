@@ -1,6 +1,6 @@
 🌱 Sahayak AI: The Climate Resilient Livelihood Planner
-
 ----
+
 📌 Overview
 
 Sahayak AI is a smart, farmer-centric platform designed to support farmers in North Karnataka and other drought-prone regions of India. 
