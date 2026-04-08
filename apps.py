@@ -1,23 +1,40 @@
 import streamlit as st
 from gtts import gTTS
 import io
-from pydantic import BaseModel
-import tempfile
 
-# For optional voice input
+# Optional voice input
 try:
     import speech_recognition as sr
     VOICE_ENABLED = True
 except ImportError:
     VOICE_ENABLED = False
 
-# ---------------- Backend logic ----------------
-class RequestData(BaseModel):
-    choice: str
-    language: str
+# ---------------- Session ----------------
+if "page" not in st.session_state:
+    st.session_state.page = "language"
+if "language" not in st.session_state:
+    st.session_state.language = "en"
+if "choice" not in st.session_state:
+    st.session_state.choice = None
 
-def get_plan(choice, lang):
-    plans = {
+# ---------------- Helper Functions ----------------
+def go_to_page(page_name):
+    st.session_state.page = page_name
+    st.experimental_rerun()
+
+def generate_audio(text, lang):
+    tts = gTTS(text=text, lang=lang)
+    audio_bytes = io.BytesIO()
+    tts.write_to_fp(audio_bytes)
+    audio_bytes.seek(0)
+    return audio_bytes
+
+def speak(text):
+    audio = generate_audio(text, st.session_state.language)
+    st.audio(audio, format="audio/mp3")
+
+def get_recommendation(choice, lang):
+    data = {
         "en": {
             "dry": ("Ragi, Jowar, Bajra", "Goat, Poultry", "Ghee, Oil"),
             "dairy": ("Fodder Crops", "Milk, Paneer", "Ghee, Butter"),
@@ -34,136 +51,103 @@ def get_plan(choice, lang):
             "fish": ("ನೀರಿನ ಸಸ್ಯಗಳು", "ಮೀನುಗಾರಿಕೆ", "ಮೀನು ಉತ್ಪನ್ನಗಳು")
         }
     }
-    return plans[lang][choice]
+    return data[lang][choice]
 
-def generate_audio(text, lang):
-    tts = gTTS(text=text, lang=lang)
-    audio_bytes = io.BytesIO()
-    tts.write_to_fp(audio_bytes)
-    audio_bytes.seek(0)
-    return audio_bytes
-
-def recommend(choice, language):
-    crops, income, value = get_plan(choice, language)
-    audio = generate_audio(f"{crops}. {income}. {value}", language)
-    return {"crops": crops, "income": income, "value_addition": value, "audio_bytes": audio}
-
-def speak_instruction(text, lang):
-    audio_bytes = generate_audio(text, lang)
-    st.audio(audio_bytes, format="audio/mp3")
-
-# ---------------- Frontend ----------------
-st.set_page_config(page_title="🌾 Sahayak AI", layout="wide")
-
-# Session state
-if "page" not in st.session_state:
-    st.session_state.page = "language"
-if "language" not in st.session_state:
-    st.session_state.language = "en"
-if "choice" not in st.session_state:
-    st.session_state.choice = None
-
-def go_to_page(page_name):
-    st.session_state.page = page_name
-    st.experimental_rerun()
-
-# ---------------- Language Selection Page ----------------
+# ---------------- UI ----------------
+# 1️⃣ Language Selection
 if st.session_state.page == "language":
     st.title("🌾 Sahayak AI")
-    st.subheader("Select Your Language / अपनी भाषा चुनें / ನಿಮ್ಮ ಭಾಷೆ ಆರಿಸಿ")
-
+    st.subheader("Select Language")
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("🇬🇧 English"):
+        if st.button("🇬🇧"):
             st.session_state.language = "en"
             go_to_page("welcome")
     with col2:
-        if st.button("🇮🇳 Hindi"):
+        if st.button("🇮🇳"):
             st.session_state.language = "hi"
             go_to_page("welcome")
     with col3:
-        if st.button("🏴 Kannada"):
+        if st.button("🏴"):
             st.session_state.language = "kn"
             go_to_page("welcome")
 
-# ---------------- Welcome Page ----------------
+# 2️⃣ Welcome Page
 elif st.session_state.page == "welcome":
     lang = st.session_state.language
-    titles = {"en": "🌾 Welcome to Sahayak AI",
-              "hi": "🌾 सहायक एआई में आपका स्वागत है",
-              "kn": "🌾 ಸಹಾಯಕ ಎಐ ಗೆ ಸುಸ್ವಾಗತ"}
-    descriptions = {"en": "Your assistant for climate-resilient crops and secondary income.",
-                    "hi": "जलवायु-प्रतिरोधी फसल और वैकल्पिक आय के लिए आपका सहायक।",
-                    "kn": "ಹವಾಮಾನ-ತಡೆಗಟ್ಟಿದ ಬೆಳೆ ಮತ್ತು ಪರ್ಯಾಯ ಆದಾಯಕ್ಕಾಗಿ ನಿಮ್ಮ ಸಹಾಯಕ."}
+    titles = {"en": "🌾 Welcome", "hi": "🌾 स्वागत है", "kn": "🌾 ಸುಸ್ವಾಗತ"}
+    descriptions = {
+        "en": "Your assistant for resilient crops & extra income",
+        "hi": "आपका सहायक – फसल और अतिरिक्त आय",
+        "kn": "ನಿಮ್ಮ ಸಹಾಯಕ – ಬೆಳೆ ಮತ್ತು ಹೆಚ್ಚುವರಿ ಆದಾಯ"
+    }
+    st.image("https://i.imgur.com/6Iej2c3.png", use_column_width=True)  # placeholder farm image
     st.title(titles[lang])
-    st.write(descriptions[lang])
-    speak_instruction(descriptions[lang], lang)
-
-    if st.button({"en": "Start", "hi": "शुरू करें", "kn": "ಪ್ರಾರಂಭಿಸಿ"}[lang]):
+    speak(descriptions[lang])
+    if st.button("➡️"):
         go_to_page("farm_type")
 
-# ---------------- Farm Type Page ----------------
+# 3️⃣ Farm Type Selection
 elif st.session_state.page == "farm_type":
     lang = st.session_state.language
-    st.header({"en": "Select Your Farm Type", "hi": "अपना फ़ार्म प्रकार चुनें", "kn": "ನಿಮ್ಮ ಫಾರ್ಮ್ ಪ್ರಕಾರವನ್ನು ಆರಿಸಿ"}[lang])
-    st.write({"en": "Click or say your farm type.", 
-              "hi": "अपने फ़ार्म प्रकार पर क्लिक करें या बोलें।",
-              "kn": "ನಿಮ್ಮ ಫಾರ್ಮ್ ಪ್ರಕಾರ ಕ್ಲಿಕ್ ಮಾಡಿ ಅಥವಾ ಹೇಳಿ."}[lang])
-
-    # Voice input
+    st.subheader("Select Farm Type")
+    speak({"en": "Choose your farm type: Dry Land, Dairy, or Fish",
+           "hi": "अपना फ़ार्म प्रकार चुनें: ड्रा लैंड, डेयरी, या मछली",
+           "kn": "ನಿಮ್ಮ ಫಾರ್ಮ್ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ: ಡ್ರೈ ಲ್ಯಾಂಡ್, ಡೇರಿ, ಅಥವಾ ಮೀನು"}[lang])
+    
+    # Voice Input
     if VOICE_ENABLED:
         st.write("🎤 Speak your farm type (Dry Land, Dairy, Fish)")
-        audio_file = st.file_uploader("Record your voice here", type=["wav", "mp3"])
-        if audio_file is not None:
+        audio_file = st.file_uploader("Upload voice (wav/mp3)", type=["wav","mp3"])
+        if audio_file:
             r = sr.Recognizer()
             with sr.AudioFile(audio_file) as source:
                 audio_data = r.record(source)
                 try:
-                    text = r.recognize_google(audio_data, language={"en": "en-US", "hi": "hi-IN", "kn": "kn-IN"}[lang])
+                    text = r.recognize_google(audio_data, language={"en":"en-US","hi":"hi-IN","kn":"kn-IN"}[lang])
                     st.write(f"You said: {text}")
-                    if "dry" in text.lower() or "रागी" in text.lower() or "ರಾಗಿ" in text:
+                    if any(word in text.lower() for word in ["dry","रागी","ರಾಗಿ"]):
                         st.session_state.choice = "dry"
-                    elif "dairy" in text.lower() or "दूध" in text.lower() or "ಹಾಲು" in text:
+                    elif any(word in text.lower() for word in ["dairy","दूध","ಹಾಲು"]):
                         st.session_state.choice = "dairy"
-                    elif "fish" in text.lower() or "मछली" in text.lower() or "ಮೀನು" in text:
+                    elif any(word in text.lower() for word in ["fish","मछली","ಮೀನು"]):
                         st.session_state.choice = "fish"
                     if st.session_state.choice:
                         go_to_page("recommendation")
-                except Exception as e:
-                    st.error("Could not recognize speech. Please try again or use buttons.")
-
-    # Fallback buttons
+                except:
+                    st.error("Could not recognize speech. Please use icons below.")
+    
+    # Icon Buttons
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("🏜️ Dry Land", key="dry"):
+        if st.button("🏜️"):
             st.session_state.choice = "dry"
             go_to_page("recommendation")
     with col2:
-        if st.button("🐄 Dairy", key="dairy"):
+        if st.button("🐄"):
             st.session_state.choice = "dairy"
             go_to_page("recommendation")
     with col3:
-        if st.button("🐟 Fish", key="fish"):
+        if st.button("🐟"):
             st.session_state.choice = "fish"
             go_to_page("recommendation")
 
-# ---------------- Recommendation Page ----------------
+# 4️⃣ Recommendation Page
 elif st.session_state.page == "recommendation":
     lang = st.session_state.language
-    if st.session_state.choice is None:
+    if not st.session_state.choice:
         go_to_page("farm_type")
-
-    st.header({"en": "Your Recommendations", "hi": "आपकी अनुशंसाएँ", "kn": "ನಿಮ್ಮ ಶಿಫಾರಸುಗಳು"}[lang])
-
-    try:
-        data = recommend(st.session_state.choice, lang)
-        st.markdown(f"### 🌱 Crops: {data['crops']}")
-        st.markdown(f"### 💰 Income: {data['income']}")
-        st.markdown(f"### 🔄 Value Addition: {data['value_addition']}")
-        st.audio(data["audio_bytes"], format="audio/mp3")
-
-        if st.button({"en": "Go Back", "hi": "वापस जाएँ", "kn": "ಹಿಂತಿರುಗಿ"}[lang]):
-            go_to_page("farm_type")
-
-    except Exception as e:
-        st.error(f"⚠️ Something went wrong: {e}")
+    
+    crops, income, value = get_recommendation(st.session_state.choice, lang)
+    
+    st.subheader("🌱 Crops")
+    st.image("https://i.imgur.com/1RZfJwI.png", caption=crops, use_column_width=True)
+    st.subheader("💰 Livestock / Income")
+    st.image("https://i.imgur.com/3QzQ0kj.png", caption=income, use_column_width=True)
+    st.subheader("🔄 Value Addition")
+    st.image("https://i.imgur.com/xZl4a4G.png", caption=value, use_column_width=True)
+    
+    speak(f"Crops: {crops}. Income: {income}. Value Addition: {value}")
+    
+    if st.button("🏠"):
+        go_to_page("welcome")
