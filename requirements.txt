@@ -1,6 +1,6 @@
 fastapi
-uvicorn
-streamlit
-requests
-gtts
+uvicorn[standard]
 pydantic
+requests
+streamlit
+gtts
