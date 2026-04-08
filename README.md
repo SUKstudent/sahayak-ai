@@ -117,7 +117,11 @@ Outputs:
 🚀 Future Enhancements
 
 📡 Real-time weather integration
+
 📱 Mobile app with regional language support (Kannada, Hindi, etc.)
+
 🤖 AI chatbot for farmer assistance
+
 💰 Market price prediction
+
 🌐 Offline functionality for low-connectivity areas
