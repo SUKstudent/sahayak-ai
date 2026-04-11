@@ -125,3 +125,29 @@ Outputs:
 💰 Market price prediction
 
 🌐 Offline functionality for low-connectivity areas
+
+----
+
+📁 Project Structure
+
+
+sahayak-ai/
+│
+├── backend/
+│   ├── server.js
+│   ├── routes/
+│   │   ├── chat.js
+│   │   ├── analyze.js
+│   │   ├── upload.js
+│   ├── utils/
+│   │   ├── engine.js
+│   ├── .env
+│   ├── package.json
+│
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   ├── app.js
+│   ├── arya.png
+│
+└── README.md
