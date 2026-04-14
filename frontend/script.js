@@ -295,12 +295,72 @@ app.get('/api/voice/respond', (req, res) => {
     res.json({ response });
 });
 
+// Route to serve dashboard with language toggle JavaScript injected
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/welcome.html'));
 });
 
 app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    // Read the index.html file and inject the language toggle script
+    const fs = require('fs');
+    const indexPath = path.join(__dirname, '../frontend/index.html');
+    
+    fs.readFile(indexPath, 'utf8', (err, data) => {
+        if (err) {
+            res.sendFile(indexPath); // Fallback to direct file
+            return;
+        }
+        
+        // Language toggle JavaScript to inject
+        const languageToggleScript = `
+    <script>
+        // Language toggle functionality
+        function setLanguage(lang) {
+            localStorage.setItem('selectedLanguage', lang);
+            // You can add logic here to refresh page content or update UI
+            if (typeof updateContentForLanguage === 'function') {
+                updateContentForLanguage(lang);
+            } else {
+                location.reload(); // Simple reload to apply language
+            }
+        }
+        
+        // Add event listeners when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const engLangOption = document.getElementById('engLangOption');
+            const kanLangOption = document.getElementById('kanLangOption');
+            
+            if (engLangOption) {
+                engLangOption.addEventListener('click', function() {
+                    setLanguage('english');
+                    engLangOption.classList.add('active');
+                    if (kanLangOption) kanLangOption.classList.remove('active');
+                });
+            }
+            
+            if (kanLangOption) {
+                kanLangOption.addEventListener('click', function() {
+                    setLanguage('kannada');
+                    kanLangOption.classList.add('active');
+                    if (engLangOption) engLangOption.classList.remove('active');
+                });
+            }
+            
+            // Load saved language preference
+            const savedLang = localStorage.getItem('selectedLanguage');
+            if (savedLang === 'kannada' && kanLangOption) {
+                kanLangOption.click();
+            } else if (savedLang === 'english' && engLangOption) {
+                engLangOption.click();
+            }
+        });
+    </script>
+    `;
+        
+        // Inject script before closing body tag
+        const modifiedData = data.replace('</body>', languageToggleScript + '</body>');
+        res.send(modifiedData);
+    });
 });
 
 app.listen(PORT, () => {
