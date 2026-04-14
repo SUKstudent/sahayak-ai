@@ -287,6 +287,8 @@ app.get('/api/voice/respond', (req, res) => {
         response = lang === 'kannada' ? "ಬಿದ್ರಿ ಕೆಲಸಕ್ಕೆ ₹5,000 ವೆಚ್ಚ, ಮಾಸಿಕ ₹5,000 ಆದಾಯ. ಕೆವಿಐಸಿ ಬೀದರ್ನಲ್ಲಿ ತರಬೇತಿ." : "Bidri work costs ₹5,000, monthly income ₹5,000. Training at KVIC Bidar.";
     } else if (qLower.includes('subsidy') || qLower.includes('ಸಬ್ಸಿಡಿ')) {
         response = lang === 'kannada' ? "PMEGP 35% ಸಬ್ಸಿಡಿ, KVIC 40% ಸಬ್ಸಿಡಿ, NABARD ಸಾಲ ಸೌಲಭ್ಯವಿದೆ." : "PMEGP 35% subsidy, KVIC 40% subsidy, NABARD loans available.";
+    } else if (qLower.includes('goat') || qLower.includes('ಮೇಕೆ')) {
+        response = lang === 'kannada' ? "ಮೇಕೆ ಸಾಕಣೆ ವೆಚ್ಚ ₹15,000, ಮಾಸಿಕ ಆದಾಯ ₹4,000." : "Goat rearing costs ₹15,000, monthly income ₹4,000.";
     } else {
         response = lang === 'kannada' ? "ದಯವಿಟ್ಟು ಬೆಳೆ, ಬಿದ್ರಿ, ಅಥವಾ ಸಬ್ಸಿಡಿ ಬಗ್ಗೆ ಕೇಳಿ." : "Please ask about crops, Bidri, or subsidies.";
     }
