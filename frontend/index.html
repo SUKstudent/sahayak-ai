@@ -1010,14 +1010,13 @@
                         I can help you with:<br>
                         • 🌽 Crops<br>
                         • 🐐 Livestock<br>
-                        • 👩‍🎨 Family Skills (17+ traditional skills)<br>
+                        • 👩‍🎨 Family Skills (Lambani, Ilkal, Byadgi, Bidri, etc.)<br>
                         • 🏦 Government Schemes<br>
                         • 📸 Soil Analysis<br><br>
                         <strong>Try asking me:</strong><br>
                         "Tell me about Lambani embroidery"<br>
                         "Ilkal saree weaving details"<br>
-                        "Byadgi chilli products"<br>
-                        "Jowar based food products"
+                        "Byadgi chilli products"
                     </div>
                 </div>
             </div>
@@ -1126,7 +1125,7 @@
             }
         };
 
-        // ========== EXPANDED SKILLS LIST - 17+ TRADITIONAL SKILLS ==========
+        // COMPLETE SKILLS LIST WITH 20+ TRADITIONAL SKILLS
         const SKILLS_LIST = [
             // Handicrafts & Embroidery
             { id: "lambani", name: "Lambani (Banjara) Embroidery", kn: "ಲಂಬಾಣಿ ಎಂಬ್ರಾಯ್ಡರಿ", setup: 2000, monthly: 4000, training: "Lambani Craft Center, Hampi", water: "Zero" },
@@ -1151,7 +1150,7 @@
             { id: "dairy", name: "Dairy Products (Ghee, Curd, Butter)", kn: "ಹೈನು ಉತ್ಪನ್ನಗಳು (ತುಪ್ಪ, ಮೊಸರು, ಬೆಣ್ಣೆ)", setup: 20000, monthly: 15000, training: "KMF Dairy Training Center", water: "Moderate" },
             { id: "millet", name: "Millet-based Food Processing", kn: "ಸಿರಿಧಾನ್ಯ ಆಹಾರ ಸಂಸ್ಕರಣೆ", setup: 12000, monthly: 13000, training: "Millet Mission, Karnataka", water: "Low" },
             
-            // Traditional Skills (continued)
+            // Traditional Skills
             { id: "bidri", name: "Bidri Work", kn: "ಬಿದ್ರಿ ಕೆಲಸ", setup: 5000, monthly: 5000, training: "KVIC Bidar", water: "Zero" },
             { id: "kasuti", name: "Kasuti Embroidery", kn: "ಕಸೂತಿ", setup: 1000, monthly: 3000, training: "KRISHI Jyoti Dharwad", water: "Zero" },
             { id: "diya", name: "Diya Making", kn: "ದೀಪ ಮಾಡುವುದು", setup: 3000, monthly: 8000, training: "KVIC Hubli", water: "Zero" },
@@ -1463,7 +1462,7 @@
                     html += `<div class="info-card">
                         <h3>${skill.display_name}</h3>
                         <div class="subsidy">💰 Setup: ₹${skill.setup} | Monthly: ₹${skill.monthly}</div>
-                        <div class="info-detail"><span>🎓 Training:</span> ${skill.training}</div>
+                        <div class="info-detail"><span>🎓 Training:</span> ${skill.display_training || skill.training}</div>
                         <div class="info-detail"><span>💧 Water:</span> ${skill.water} water required</div>
                     </div>`;
                 });
@@ -1564,13 +1563,15 @@
             if (indicator) indicator.remove();
         }
 
-        // FEMALE VOICE FOR BOTH KANNADA AND ENGLISH
+        // FIXED: FEMALE VOICE FOR BOTH KANNADA AND ENGLISH
         function speakWithFemaleVoice(text, language) {
             if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
                 window.speechSynthesis.cancel();
                 
                 const utterance = new SpeechSynthesisUtterance(text);
                 
+                // Set language
                 if (language === 'kannada') {
                     utterance.lang = 'kn-IN';
                 } else {
@@ -1578,40 +1579,60 @@
                 }
                 
                 utterance.rate = 0.9;
-                utterance.pitch = 1.3;
+                utterance.pitch = 1.3;  // Higher pitch for female voice
                 utterance.volume = 1;
                 
+                // Function to find and set female voice
                 const setFemaleVoice = () => {
                     const voices = window.speechSynthesis.getVoices();
+                    console.log("Available voices:", voices.map(v => v.name + " - " + v.lang));
                     
                     if (language === 'kannada') {
-                        const kannadaFemale = voices.find(v => 
-                            v.lang.includes('kn') && (v.name.includes('Female') || v.name.includes('Girl') || v.name.includes('Samantha'))
+                        // Look for Kannada female voice
+                        let kannadaVoice = voices.find(v => 
+                            v.lang === 'kn-IN' && (v.name.includes('Female') || v.name.includes('Google') || v.name.includes('Kannada'))
                         );
-                        if (kannadaFemale) utterance.voice = kannadaFemale;
+                        if (!kannadaVoice) {
+                            kannadaVoice = voices.find(v => v.lang === 'kn-IN');
+                        }
+                        if (kannadaVoice) {
+                            utterance.voice = kannadaVoice;
+                            console.log("Using Kannada voice:", kannadaVoice.name);
+                        } else {
+                            console.log("No Kannada voice found, using default");
+                        }
                     } else {
-                        const englishFemale = voices.find(v => 
-                            (v.lang.includes('en-IN') || v.lang.includes('en-GB')) && 
-                            (v.name.includes('Female') || v.name.includes('Girl') || v.name.includes('Samantha') || v.name.includes('Google UK Female'))
+                        // Look for English Indian female voice
+                        let englishVoice = voices.find(v => 
+                            v.lang === 'en-IN' && (v.name.includes('Female') || v.name.includes('Google') || v.name.includes('Samantha'))
                         );
-                        if (englishFemale) utterance.voice = englishFemale;
-                        
-                        if (!englishFemale) {
-                            const anyFemale = voices.find(v => 
-                                v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google UK Female')
-                            );
-                            if (anyFemale) utterance.voice = anyFemale;
+                        if (!englishVoice) {
+                            englishVoice = voices.find(v => v.lang === 'en-IN');
+                        }
+                        if (!englishVoice) {
+                            englishVoice = voices.find(v => v.lang === 'en-GB' && v.name.includes('Female'));
+                        }
+                        if (englishVoice) {
+                            utterance.voice = englishVoice;
+                            console.log("Using English voice:", englishVoice.name);
+                        } else {
+                            console.log("No English female voice found, using default");
                         }
                     }
                 };
                 
+                // Some browsers need time to load voices
                 if (window.speechSynthesis.getVoices().length > 0) {
                     setFemaleVoice();
+                    window.speechSynthesis.speak(utterance);
                 } else {
-                    window.speechSynthesis.onvoiceschanged = setFemaleVoice;
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        setFemaleVoice();
+                        window.speechSynthesis.speak(utterance);
+                    };
                 }
-                
-                window.speechSynthesis.speak(utterance);
+            } else {
+                console.log("Speech synthesis not supported");
             }
         }
 
