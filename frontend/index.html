@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Make sure script loads after DOM -->
-    <script src="script.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sahayak AI - Dashboard</title>
+    <title>Sahayak AI - Farmer's Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -17,6 +15,7 @@
                     <span>🌾</span>
                     <span>Sahayak AI</span>
                 </div>
+                <div class="welcome-text">ನಮಸ್ಕಾರ ರೈತರೇ</div>
             </div>
             
             <nav class="sidebar-nav">
@@ -42,7 +41,7 @@
                 </a>
                 <a href="#" class="nav-item" data-page="reports">
                     <span class="nav-icon">📄</span>
-                    <span>Reports</span>
+                    <span>My Reports</span>
                 </a>
             </nav>
 
@@ -51,9 +50,9 @@
                     <button class="lang-option active" data-lang="english">EN</button>
                     <button class="lang-option" data-lang="kannada">ಕ</button>
                 </div>
-                <a href="welcome.html" class="logout-btn">
-                    <span>🚪</span>
-                    <span>Logout</span>
+                <a href="welcome.html" class="home-btn">
+                    <span>🏠</span>
+                    <span>Home</span>
                 </a>
             </div>
         </aside>
@@ -61,10 +60,13 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
-                <div class="page-title" id="pageTitle">Dashboard</div>
+                <div class="top-bar-left">
+                    <button class="back-btn" id="backBtn" style="display: none;">← Back</button>
+                    <div class="page-title" id="pageTitle">Dashboard</div>
+                </div>
                 <div class="user-info">
-                    <span class="farmer-name">👨‍🌾 Namaskara, Farmer</span>
-                    <button class="arya-mini-btn" id="openArya">🤖 Arya</button>
+                    <span class="farmer-badge">👨‍🌾 Farmer</span>
+                    <button class="arya-mini-btn" id="openArya">🤖 Ask Arya</button>
                 </div>
             </header>
 
@@ -92,14 +94,11 @@
 
                     <div class="welcome-section">
                         <h2>Welcome to Sahayak AI</h2>
-                        <p>Your personal AI assistant for climate-resilient farming. Get started by filling your farmer details or analyzing your soil.</p>
+                        <p>Your personal AI assistant for climate-resilient farming. No login needed - just start using!</p>
                         <div class="quick-actions">
-                      <!-- Inside the main content area, fix the quick action buttons -->
-                       <div class="quick-actions">
-                       <button class="quick-btn" onclick="navigateTo('farmer')">📝 Fill Farmer Details</button>
-                       <button class="quick-btn" onclick="navigateTo('soil')">📸 Analyze Soil</button>
-                       <button class="quick-btn" onclick="toggleArya()">🗣️ Talk to Arya</button>
-                       </div>
+                            <button class="quick-btn" onclick="navigateTo('farmer')">📝 Fill Farmer Details</button>
+                            <button class="quick-btn" onclick="navigateTo('soil')">📸 Analyze Soil</button>
+                            <button class="quick-btn" onclick="toggleArya()">🗣️ Talk to Arya</button>
                         </div>
                     </div>
 
@@ -115,6 +114,8 @@
                 <div id="farmerPage" class="page">
                     <div class="card">
                         <h2>Farmer Details</h2>
+                        <p class="info-note">Fill your details below. No registration needed.</p>
+                        
                         <div class="lang-buttons">
                             <button class="lang-btn active" data-lang="english">🇬🇧 English</button>
                             <button class="lang-btn" data-lang="kannada">🇮🇳 ಕನ್ನಡ</button>
@@ -152,6 +153,8 @@
                 <div id="soilPage" class="page">
                     <div class="card">
                         <h2>Soil Analysis</h2>
+                        <p class="info-note">Upload a photo of your soil. AI will analyze and recommend crops.</p>
+                        
                         <div class="lang-buttons">
                             <button class="lang-btn active" data-lang="english">🇬🇧 English</button>
                             <button class="lang-btn" data-lang="kannada">🇮🇳 ಕನ್ನಡ</button>
@@ -186,6 +189,7 @@
                 <div id="schemesPage" class="page">
                     <div class="card">
                         <h2>Government Schemes</h2>
+                        <p class="info-note">Schemes you can apply for with subsidy information.</p>
                         <div class="lang-buttons">
                             <button class="lang-btn active" data-lang="english">🇬🇧 English</button>
                             <button class="lang-btn" data-lang="kannada">🇮🇳 ಕನ್ನಡ</button>
@@ -198,22 +202,25 @@
                 <div id="skillsPage" class="page">
                     <div class="card">
                         <h2>Family Skills to Monetize</h2>
-                        <div class="skills-showcase" id="skillsShowcase"></div>
+                        <p class="info-note">Traditional skills that can generate income with zero water.</p>
+                        <div id="skillsShowcase" class="skills-showcase-container"></div>
                     </div>
                 </div>
 
                 <!-- Reports Page -->
                 <div id="reportsPage" class="page">
                     <div class="card">
-                        <h2>Your Reports</h2>
+                        <h2>My Reports</h2>
+                        <p class="info-note">Your previous recommendations are saved here.</p>
                         <div id="reportsList" class="reports-container">
                             <p class="empty-state">No reports yet. Generate recommendations to see your reports here.</p>
                         </div>
+                        <button class="btn-secondary" id="clearReportsBtn" style="margin-top: 16px;">🗑️ Clear All Reports</button>
                     </div>
                 </div>
             </div>
 
-            <div id="results" class="results-container"></div>
+            <div id="results" class="results-container" style="display: none;"></div>
         </main>
     </div>
 
@@ -226,7 +233,8 @@
         <div class="arya-messages" id="aryaMessages">
             <div class="message arya-msg">
                 🤖 Namaste! I am Arya, your farming assistant.<br>
-                Ask me about crops, livestock, Bidri work, or subsidies!
+                Ask me about crops, livestock, Bidri work, or subsidies!<br>
+                No login needed - I'm here to help for free.
             </div>
         </div>
         <div class="arya-mic">
