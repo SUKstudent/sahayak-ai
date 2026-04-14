@@ -86,12 +86,19 @@ Farmers submit the following information through the web interface:
 ## 📁 Project Structure
 
 sahayak-ai/
+
 ├── backend/
+
 │ ├── server.js # Express server with API routes
+
 │ └── package.json # Dependencies
+
 ├── frontend/
+
 │ ├── welcome.html # Landing page
+
 │ └── index.html # Main dashboard
+
 └── README.md # Documentation
 
 ## 📱 How to Use
@@ -126,9 +133,9 @@ e.AI predicts soil type and recommends suitable crops
 
 ## 🗣️Language Support
 
-1.Click "English" or "ಕನ್ನಡ" buttons to switch languages
+1)Click "English" or "ಕನ್ನಡ" buttons to switch languages
 
-2.All content, labels, and recommendations update automatically
+2)All content, labels, and recommendations update automatically
 
 ----
 
