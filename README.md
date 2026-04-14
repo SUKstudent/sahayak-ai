@@ -84,3 +84,66 @@ Farmers submit the following information through the web interface:
 - **Version Control:** Git
 
 ## 📁 Project Structure
+
+sahayak-ai/
+├── backend/
+│ ├── server.js # Express server with API routes
+│ └── package.json # Dependencies
+├── frontend/
+│ ├── welcome.html # Landing page
+│ └── index.html # Main dashboard
+└── README.md # Documentation
+
+## 📱 How to Use
+
+### 1)For Farmers
+
+a.Select your district or use GPS location
+
+b.Enter land size, water availability, and budget
+
+c.Select family skills (if any)
+
+d.Click "Get Recommendations"
+
+e.View personalized crop, livestock, and skill recommendations
+
+f.Check government schemes for funding options
+
+### 2)For Soil Analysis
+
+a.Click "Soil Analysis" tab
+
+b.Upload a photo of your soil
+
+c.Enter land size and budget
+
+d.Click "Analyze Soil"
+
+e.AI predicts soil type and recommends suitable crops
+
+----
+
+## 🗣️Language Support
+
+1.Click "English" or "ಕನ್ನಡ" buttons to switch languages
+
+2.All content, labels, and recommendations update automatically
+
+----
+
+🔮 Future Scope
+
+🔲 Real-time weather API integration (IMD)
+
+🔲 Live market price updates (APMC)
+
+🔲 Offline-first PWA
+
+🔲 SMS interface for feature phones
+
+🔲 AI crop disease detection from photos
+
+🔲 Farmer-to-farmer network & marketplace
+
+🔲 Integration with government portals for direct application
