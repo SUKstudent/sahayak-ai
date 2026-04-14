@@ -237,6 +237,19 @@
             border-color: #22c55e;
         }
 
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
         .skills-grid {
             display: flex;
             flex-wrap: wrap;
@@ -376,7 +389,7 @@
             border-radius: 12px;
         }
 
-        /* Schemes & Skills Cards */
+        /* Cards Container */
         .cards-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -439,6 +452,14 @@
             border-radius: 8px;
             font-size: 13px;
             color: #92400e;
+        }
+
+        .location-info {
+            background: #e0e7ff;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
 
         .loading {
@@ -582,6 +603,32 @@
                             <button class="lang-btn" data-lang="kannada" id="kanLangBtn">🇮🇳 ಕನ್ನಡ</button>
                         </div>
 
+                        <!-- Location Section -->
+                        <div class="form-group">
+                            <label id="label-location">📍 Select District</label>
+                            <select id="district">
+                                <option value="">-- Select District --</option>
+                                <option value="Bagalkot">Bagalkot</option>
+                                <option value="Vijayapura">Vijayapura</option>
+                                <option value="Gadag">Gadag</option>
+                                <option value="Koppal">Koppal</option>
+                                <option value="Belagavi">Belagavi</option>
+                                <option value="Dharwad">Dharwad</option>
+                                <option value="Haveri">Haveri</option>
+                                <option value="Raichur">Raichur</option>
+                                <option value="Yadgir">Yadgir</option>
+                                <option value="Kalaburagi">Kalaburagi</option>
+                                <option value="Uttara Kannada">Uttara Kannada</option>
+                                <option value="Shivamogga">Shivamogga</option>
+                                <option value="Chikkamagaluru">Chikkamagaluru</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label id="label-or">OR</label>
+                            <button type="button" class="btn-secondary" id="getLocationBtn">📍 Use My Current Location</button>
+                        </div>
+
                         <div class="form-group">
                             <label id="label-land">🌍 Land Size (acres)</label>
                             <input type="number" id="land" step="0.5" placeholder="e.g., 2.5">
@@ -645,11 +692,11 @@
                     </div>
                 </div>
 
-                <!-- Family Skills Page (Separate) -->
+                <!-- Family Skills Page -->
                 <div id="skillsPage" class="page">
                     <div class="card">
                         <h2>Family Skills to Monetize</h2>
-                        <p>Traditional skills that can generate income with zero water requirement.</p>
+                        <p>Traditional skills that can generate income with zero or low water requirement.</p>
                         <div id="skillsList" class="cards-container"></div>
                     </div>
                 </div>
@@ -689,33 +736,12 @@
         let selectedSoilSkills = [];
 
         const SKILLS_LIST = [
-            { id: "bidri", name: "Bidri Work", kn: "ಬಿದ್ರಿ ಕೆಲಸ", setup: 5000, monthly: 5000, training: "KVIC Bidar" },
-            { id: "kasuti", name: "Kasuti Embroidery", kn: "ಕಸೂತಿ", setup: 1000, monthly: 3000, training: "KRISHI Jyoti Dharwad" },
-            { id: "diya", name: "Diya Making", kn: "ದೀಪ ಮಾಡುವುದು", setup: 3000, monthly: 8000, training: "KVIC Hubli" },
-            { id: "pickle", name: "Pickle Making", kn: "ಉಪ್ಪಿನಕಾಯಿ", setup: 5000, monthly: 12000, training: "NABARD SHG" }
+            { id: "bidri", name: "Bidri Work", kn: "ಬಿದ್ರಿ ಕೆಲಸ", setup: 5000, monthly: 5000, training: "KVIC Bidar", water: "Zero" },
+            { id: "kasuti", name: "Kasuti Embroidery", kn: "ಕಸೂತಿ", setup: 1000, monthly: 3000, training: "KRISHI Jyoti Dharwad", water: "Zero" },
+            { id: "diya", name: "Diya Making", kn: "ದೀಪ ಮಾಡುವುದು", setup: 3000, monthly: 8000, training: "KVIC Hubli", water: "Zero" },
+            { id: "pickle", name: "Pickle Making", kn: "ಉಪ್ಪಿನಕಾಯಿ", setup: 5000, monthly: 12000, training: "NABARD SHG", water: "Low" },
+            { id: "agarbatti", name: "Agarbatti Making", kn: "ಅಗರಬತ್ತಿ", setup: 4000, monthly: 7000, training: "KVIC", water: "Zero" }
         ];
-
-        const SCHEMES_DATA = [
-            { name: "PMEGP", name_kn: "ಪಿಎಂಇಜಿಪಿ", subsidy: "35%", loan: "₹1,00,000", desc: "For micro-enterprises", deadline: "March 31, 2025" },
-            { name: "NABARD SHG", name_kn: "ನಬಾರ್ಡ್", subsidy: "Loans at 7%", loan: "₹50,000", desc: "Women self-help groups", deadline: "Rolling" },
-            { name: "KVIC Craft", name_kn: "ಕೆವಿಐಸಿ", subsidy: "40%", loan: "₹75,000", desc: "Traditional artisans", deadline: "Dec 31, 2025" },
-            { name: "MGNREGA", name_kn: "ಮಹಾತ್ಮಾ ಗಾಂಧಿ", subsidy: "100%", loan: "₹35,000", desc: "Farm pond digging", deadline: "Rolling" }
-        ];
-
-        const CROPS_DATA = {
-            low: [
-                { name: "Jowar (Millet)", kn: "ಜೋಳ", roi: 4, profit: 15000 },
-                { name: "Ragi", kn: "ರಾಗಿ", roi: 4, profit: 18000 },
-                { name: "Tur Dal (Togari Bele)", kn: "ತೊಗರಿಬೇಳೆ", roi: 6, profit: 22000 }
-            ],
-            moderate: [
-                { name: "Cotton", kn: "ಹತ್ತಿ", roi: 6, profit: 35000 },
-                { name: "Maize", kn: "ಮೆಕ್ಕೆಜೋಳ", roi: 3, profit: 25000 }
-            ],
-            high: [
-                { name: "Sugarcane", kn: "ಕಬ್ಬು", roi: 12, profit: 80000 }
-            ]
-        };
 
         // ========== HELPER FUNCTIONS ==========
         function switchPage(pageName) {
@@ -772,7 +798,10 @@
             document.getElementById('label-water').innerHTML = lang === 'kannada' ? '💧 ನೀರಿನ ಲಭ್ಯತೆ' : '💧 Water Availability';
             document.getElementById('label-budget').innerHTML = lang === 'kannada' ? '💰 ಬಜೆಟ್ (₹)' : '💰 Budget (₹)';
             document.getElementById('label-skills').innerHTML = lang === 'kannada' ? '👨‍👩‍👧‍👦 ಕುಟುಂಬ ಕೌಶಲ್ಯಗಳು' : '👨‍👩‍👧‍👦 Family Skills';
+            document.getElementById('label-location').innerHTML = lang === 'kannada' ? '📍 ಜಿಲ್ಲೆ ಆಯ್ಕೆಮಾಡಿ' : '📍 Select District';
+            document.getElementById('label-or').innerHTML = lang === 'kannada' ? 'ಅಥವಾ' : 'OR';
             document.getElementById('getRecommendationsBtn').innerHTML = lang === 'kannada' ? '🔍 ಸಲಹೆ ಪಡೆಯಿರಿ' : '🔍 Get Recommendations';
+            document.getElementById('getLocationBtn').innerHTML = lang === 'kannada' ? '📍 ನನ್ನ ಪ್ರಸ್ತುತ ಸ್ಥಳ ಬಳಸಿ' : '📍 Use My Current Location';
             renderSkills('skillsGrid', selectedSkills, toggleSkill, lang);
         }
 
@@ -795,11 +824,46 @@
             loadSchemes();
         }
 
+        // ========== LOCATION DETECTION ==========
+        document.getElementById('getLocationBtn').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    // Try to get district from coordinates using reverse geocoding
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                        const data = await response.json();
+                        const district = data.address?.state_district || data.address?.county || "";
+                        
+                        // Auto-fill the district dropdown
+                        const districtSelect = document.getElementById('district');
+                        for(let i = 0; i < districtSelect.options.length; i++) {
+                            if(districtSelect.options[i].text.toLowerCase().includes(district.toLowerCase())) {
+                                districtSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                        
+                        alert(`Location detected: ${district}\nLatitude: ${lat}\nLongitude: ${lon}`);
+                    } catch (error) {
+                        alert(`Location detected!\nLatitude: ${lat}\nLongitude: ${lon}\nPlease select your district manually.`);
+                    }
+                }, () => {
+                    alert('Unable to get your location. Please select district manually.');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        });
+
         // ========== GET RECOMMENDATIONS ==========
-        function getRecommendations() {
+        async function getRecommendations() {
             const land = document.getElementById('land').value;
             const water = document.getElementById('water').value;
             const budget = document.getElementById('budget').value;
+            const district = document.getElementById('district').value;
             
             if (!land || !budget) {
                 alert(currentLanguage === 'kannada' ? 'ದಯವಿಟ್ಟು ಜಮೀನು ಮತ್ತು ಬಜೆಟ್ ನಮೂದಿಸಿ' : 'Please enter land and budget');
@@ -809,19 +873,20 @@
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = `<div class="loading"><div class="spinner"></div><p>${currentLanguage === 'kannada' ? 'ವಿಶ್ಲೇಷಿಸುತ್ತಿದೆ...' : 'Analyzing...'}</p></div>`;
             
-            fetch('/api/recommend', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    land_acres: parseFloat(land),
-                    water: water,
-                    budget: parseFloat(budget),
-                    skills: selectedSkills,
-                    language: currentLanguage
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
+            try {
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        land_acres: parseFloat(land),
+                        water: water,
+                        budget: parseFloat(budget),
+                        skills: selectedSkills,
+                        language: currentLanguage,
+                        district: district
+                    })
+                });
+                const data = await response.json();
                 displayResults(data);
                 
                 let recent = JSON.parse(localStorage.getItem('sahayak_recent') || '[]');
@@ -830,17 +895,32 @@
                 recent = recent.slice(0, 5);
                 localStorage.setItem('sahayak_recent', JSON.stringify(recent));
                 loadReports();
-            })
-            .catch(err => {
-                resultsDiv.innerHTML = `<div class="result-section"><p style="color:red;">Error: ${err.message}</p></div>`;
-            });
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result-section"><p style="color:red;">Error: ${error.message}</p></div>`;
+            }
         }
 
         function displayResults(data) {
             const resultsDiv = document.getElementById('results');
             const isKn = currentLanguage === 'kannada';
             
+            let locationHtml = '';
+            if (data.location) {
+                locationHtml = `<div class="location-info">
+                    📍 ${isKn ? 'ನಿಮ್ಮ ಸ್ಥಳ' : 'Your Location'}: ${data.location.district}<br>
+                    🌱 ${isKn ? 'ಮಣ್ಣಿನ ಪ್ರಕಾರ' : 'Soil Type'}: ${isKn ? 
+                        (data.location.soil === 'red' ? 'ಕೆಂಪು ಮಣ್ಣು' : 
+                         data.location.soil === 'black' ? 'ಕಪ್ಪು ಮಣ್ಣು' : 
+                         data.location.soil === 'laterite' ? 'ಲ್ಯಾಟರೈಟ್' : 'ಮೆಕ್ಕಲು ಮಣ್ಣು') : 
+                        (data.location.soil === 'red' ? 'Red Soil' : 
+                         data.location.soil === 'black' ? 'Black Soil' : 
+                         data.location.soil === 'laterite' ? 'Laterite' : 'Alluvial Soil')}<br>
+                    💧 ${isKn ? 'ನೀರಿನ ಲಭ್ಯತೆ' : 'Water Availability'}: ${data.location.water}
+                </div>`;
+            }
+            
             let html = `<div class="result-section">
+                ${locationHtml}
                 <div class="result-title">📋 ${isKn ? 'ನಿಮ್ಮ ಯೋಜನೆ' : 'Your Plan'}</div>
                 <div class="result-title">🌽 ${isKn ? 'ಸೂಕ್ತ ಬೆಳೆಗಳು' : 'Recommended Crops'}</div>
                 <div class="result-grid">`;
@@ -874,7 +954,7 @@
             }
         }
 
-        function analyzeSoil() {
+        async function analyzeSoil() {
             const file = document.getElementById('soilImage').files[0];
             const land = document.getElementById('soil-land').value;
             const budget = document.getElementById('soil-budget').value;
@@ -894,56 +974,69 @@
             formData.append('skills', JSON.stringify(selectedSoilSkills));
             formData.append('language', soilLanguage);
             
-            fetch('/api/soil/analyze', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    const isKn = soilLanguage === 'kannada';
-                    resultsDiv.innerHTML = `<div class="result-section">
-                        <div class="result-title">📸 ${isKn ? 'ಮಣ್ಣು ವಿಶ್ಲೇಷಣೆ' : 'Soil Analysis'}</div>
-                        <div class="summary-box"><h3>🌱 ${isKn ? 'ಮಣ್ಣಿನ ಪ್ರಕಾರ' : 'Soil Type'}: ${data.soil_analysis.type}</h3>
-                        <p>💧 ${isKn ? 'ನೀರು ಧಾರಣ' : 'Water Holding'}: ${data.soil_analysis.water_holding}</p>
-                        <p>📊 Confidence: ${data.soil_analysis.confidence}%</p></div>
-                        <div class="result-title">🌽 ${isKn ? 'ಸೂಕ್ತ ಬೆಳೆಗಳು' : 'Recommended Crops'}</div>
-                        <div class="result-grid">${data.recommendations.crops.map(c => `<div class="result-card"><h4>${c.display_name}</h4><p>💰 Profit: ₹${c.profit}/acre</p></div>`).join('')}</div>
-                    </div>`;
-                    resultsDiv.scrollIntoView({ behavior: 'smooth' });
-                })
-                .catch(err => resultsDiv.innerHTML = `<div class="result-section"><p style="color:red;">Error: ${err.message}</p></div>`);
+            try {
+                const response = await fetch('/api/soil/analyze', { method: 'POST', body: formData });
+                const data = await response.json();
+                const isKn = soilLanguage === 'kannada';
+                resultsDiv.innerHTML = `<div class="result-section">
+                    <div class="result-title">📸 ${isKn ? 'ಮಣ್ಣು ವಿಶ್ಲೇಷಣೆ' : 'Soil Analysis'}</div>
+                    <div class="summary-box"><h3>🌱 ${isKn ? 'ಮಣ್ಣಿನ ಪ್ರಕಾರ' : 'Soil Type'}: ${data.soil_analysis.type}</h3>
+                    <p>💧 ${isKn ? 'ನೀರು ಧಾರಣ' : 'Water Holding'}: ${data.soil_analysis.water_holding}</p>
+                    <p>📊 Confidence: ${data.soil_analysis.confidence}%</p></div>
+                    <div class="result-title">🌽 ${isKn ? 'ಸೂಕ್ತ ಬೆಳೆಗಳು' : 'Recommended Crops'}</div>
+                    <div class="result-grid">${data.recommendations.crops.map(c => `<div class="result-card"><h4>${c.display_name}</h4><p>💰 Profit: ₹${c.profit}/acre</p></div>`).join('')}</div>
+                </div>`;
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="result-section"><p style="color:red;">Error: ${error.message}</p></div>`;
+            }
         }
 
         // ========== LOAD FUNCTIONS ==========
-        function loadSchemes() {
+        async function loadSchemes() {
             const container = document.getElementById('schemesList');
-            const isKn = schemesLanguage === 'kannada';
-            let html = '<div class="cards-container">';
-            SCHEMES_DATA.forEach(scheme => {
-                html += `<div class="info-card">
-                    <h3>${isKn ? scheme.name_kn : scheme.name}</h3>
-                    <div class="subsidy">🎯 ${scheme.subsidy}</div>
-                    <div class="info-detail"><span>💰 Max Loan:</span> ${scheme.loan}</div>
-                    <div class="info-detail"><span>📋 Description:</span> ${scheme.desc}</div>
-                    <div class="deadline">⏰ Deadline: ${scheme.deadline}</div>
-                    <a href="#" class="apply-btn">📝 Apply Now</a>
-                </div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
+            try {
+                const response = await fetch(`/api/schemes?language=${schemesLanguage}`);
+                const data = await response.json();
+                let html = '<div class="cards-container">';
+                data.schemes.forEach(scheme => {
+                    html += `<div class="info-card">
+                        <h3>${scheme.display_name}</h3>
+                        <div class="subsidy">🎯 ${scheme.subsidy}</div>
+                        <div class="info-detail"><span>💰 Max Loan:</span> ${scheme.loan}</div>
+                        <div class="info-detail"><span>📋 Eligibility:</span> ${scheme.display_eligibility}</div>
+                        <div class="info-detail"><span>📄 Documents:</span> ${scheme.display_documents}</div>
+                        <div class="info-detail"><span>📞 Contact:</span> ${scheme.display_contact}</div>
+                        <div class="deadline">⏰ Deadline: ${scheme.deadline}</div>
+                        <a href="${scheme.application_link}" target="_blank" class="apply-btn">📝 Apply Now</a>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<p style="color:red;">Error loading schemes</p>';
+            }
         }
 
-        function loadSkills() {
+        async function loadSkills() {
             const container = document.getElementById('skillsList');
-            const isKn = currentLanguage === 'kannada';
-            let html = '<div class="cards-container">';
-            SKILLS_LIST.forEach(skill => {
-                html += `<div class="info-card">
-                    <h3>${isKn ? skill.kn : skill.name}</h3>
-                    <div class="subsidy">💰 Setup: ₹${skill.setup} | Monthly: ₹${skill.monthly}</div>
-                    <div class="info-detail"><span>🎓 Training:</span> ${skill.training}</div>
-                    <div class="info-detail"><span>💧 Water:</span> Zero water required</div>
-                </div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
+            try {
+                const response = await fetch(`/api/skills?language=${currentLanguage}`);
+                const data = await response.json();
+                let html = '<div class="cards-container">';
+                data.skills.forEach(skill => {
+                    html += `<div class="info-card">
+                        <h3>${skill.display_name}</h3>
+                        <div class="subsidy">💰 Setup: ₹${skill.setup} | Monthly: ₹${skill.monthly}</div>
+                        <div class="info-detail"><span>🎓 Training:</span> ${skill.training}</div>
+                        <div class="info-detail"><span>💧 Water:</span> ${skill.water} water required</div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<p style="color:red;">Error loading skills</p>';
+            }
         }
 
         function loadReports() {
